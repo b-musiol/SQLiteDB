@@ -8,6 +8,8 @@ add_library(SQLiteDB src/SQLiteDB.cpp
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+target_compile_features(SQLiteDB PUBLIC cxx_std_20)
+
 
 include(FetchContent)
 FetchContent_Declare(
@@ -38,6 +40,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(RunTests test/SQLiteDB_test.cpp)
 target_link_libraries(RunTests SQLiteDB GTest::gtest_main)
+target_compile_features(RunTests PUBLIC cxx_std_20)
 
 
 include(GoogleTest)

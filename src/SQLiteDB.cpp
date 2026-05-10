@@ -10,6 +10,7 @@
 #include <sqlite3.h>
 #include <format>
 #include <memory>
+#include <stdexcept>
 
 using namespace SQLiteDB;
 
