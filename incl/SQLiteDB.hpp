@@ -134,6 +134,10 @@ class Row
      * Return how many columns this row has.
      */
     size_t get_size();
+    /**
+     * Gets the `ValueType` of the entry at `ix`.
+     */
+    ValueType get_type(std::uint64_t ix);
 
   private:
     std::vector<result_t> data_;
@@ -170,14 +174,91 @@ class Database
      */
     ~Database();
 
+  public:
+  /**
+   * Executes `BEGIN_TRANSACTION;`. This does not call finalize.
+   */
+    void begin_transaction();
+    /**
+     * Executes `COMMIT;`. This does not call finalize.
+     */
+    void commit();
+    /**
+     * Executes `ROLLBACK;`. This does not call finalize.
+     */
+    void rollback();
+    /**
+     * Executes arbitrary `sql`. This does not call finalize.
+     */
+    void execute_plain(std::string sql);
+    /**
+     * Executes arbitrary `sql`. This does not call finalize.
+     */
+    void execute_plain(const char* sql);
+    /**
+     * Steps and resets the currently active statement. No returning values
+     */
+    void step_and_reset();
+    /**
+     * finalizes the currently active statement
+     */
+    void finalize_statement();
+
+  public:
+    /**
+     * Executes some `sql` code as a prepared statement multiple times with
+     * multiple `params`. No data is returned, so this is not useful for SELECT
+     * statements, but might be a good choice for INSERT, UPDATE or DELETE
+     * statements. The order of `params` in each `Row` must align with the order
+     * of placeholders `?` within `sql`.
+     */
+    void execute_statement_norows(std::string sql, std::vector<Row> &params);
+    /**
+     * Executes some `sql` code as a prepared statement once with `params`. No
+     * data is returned, so this is not useful for SELECT statements, but might
+     * be a good choice for INSERT, UPDATE or DELETE statements. The order of
+     * `params` in `Row` must align with the order of placeholders `?` within
+     * `sql`.
+     */
+    void execute_statement_norows(std::string sql, Row &params);
+    /**
+     * Executes some `sql` code as a prepared statement once without any
+     * parameters. No data is returned, so this is not useful for SELECT
+     * statements, but might be a good choice for INSERT, UPDATE or DELETE
+     * statements.
+     */
+    void execute_statement_norows(std::string sql);
+
+    // Convenience methods
+    /**
+     * Executes some `sql` code as a prepared statement once without any
+     * parameters. No data is returned, so this is not useful for SELECT
+     * statements, but might be a good choice for INSERT, UPDATE or DELETE
+     * statements.
+     */
+    void execute_statement_norows(const char *sql);
+    /**
+     * Executes some `sql` code as a prepared statement multiple times with
+     * multiple `params`. No data is returned, so this is not useful for SELECT
+     * statements, but might be a good choice for INSERT, UPDATE or DELETE
+     * statements. The order of `params` in each `Row` must align with the order
+     * of placeholders `?` within `sql`.
+     */
+    void execute_statement_norows(const char *sql, std::vector<Row> &params);
+    /**
+     * Executes some `sql` code as a prepared statement once with `params`. No
+     * data is returned, so this is not useful for SELECT statements, but might
+     * be a good choice for INSERT, UPDATE or DELETE statements. The order of
+     * `params` in `Row` must align with the order of placeholders `?` within
+     * `sql`.
+     */
+    void execute_statement_norows(const char *sql, Row &params);
+
   private:
     struct SQLiteConnection;
 
   private:
     std::unique_ptr<SQLiteConnection> conn_;
-    bool is_write_enabled_;
-    std::string db_path_;
-    std::uint64_t reserve_for_select_;
 };
 
 } // namespace SQLiteDB

@@ -2,8 +2,12 @@ cmake_minimum_required(VERSION 3.14)
 
 project(SQLiteDB)
 
-add_library(SQLiteDB src/SQLiteDB.cpp
-  src/Row.cpp)
+add_library(SQLiteDB
+  src/SQLiteDB.cpp
+  src/execute_statement_norows.cpp
+  src/SQLiteConnection.cpp
+  src/Row.cpp
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

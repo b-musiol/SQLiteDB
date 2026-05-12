@@ -7,39 +7,11 @@
  */
 
 #include "../incl/SQLiteDB.hpp"
-#include <format>
+#include "../incl/SQLiteConnection.hpp"
 #include <memory>
 #include <sqlite3.h>
-#include <stdexcept>
-
 
 using namespace SQLiteDB;
-
-struct Database::SQLiteConnection
-{
-    sqlite3 *db = nullptr;
-    int rc;
-
-    SQLiteConnection(const std::string db_path, int flags)
-    {
-        rc = sqlite3_open_v2(db_path.c_str(), &db, flags, nullptr);
-
-        if (rc != SQLITE_OK)
-        {
-            sqlite3_close(db);
-            throw std::runtime_error(
-                std::format("Failed to open database at {}", db_path));
-        }
-    }
-
-    ~SQLiteConnection()
-    {
-        if (db)
-        {
-            sqlite3_close(db);
-        }
-    }
-};
 
 Database::Database(const std::string db_path,
                    bool write,
@@ -47,7 +19,6 @@ Database::Database(const std::string db_path,
                    bool wal_in_journal,
                    bool fast_mode,
                    bool journal_off)
-    : is_write_enabled_(write), db_path_(db_path), reserve_for_select_(16)
 {
     // Make sure SQLite is not running in some form in this instance
     sqlite3_shutdown();
@@ -70,7 +41,7 @@ Database::Database(const std::string db_path,
                       : SQLITE_OPEN_READONLY;
 
     // Actually open the Database
-    conn_ = std::make_unique<SQLiteConnection>(db_path_, flags);
+    conn_ = std::make_unique<SQLiteConnection>(db_path, flags);
 
     // Set up the connection
     if (conn_->rc == SQLITE_OK)
@@ -78,54 +49,25 @@ Database::Database(const std::string db_path,
         // Fast mode for in-memory journaling or turning it off etc.
         if (fast_mode)
         {
-            // Turn off auto_vacuum
-            sqlite3_exec(conn_->db,
-                         "PRAGMA auto_vacuum = OFF;",
-                         NULL,
-                         NULL,
-                         NULL);
-            // Disable synchronous mode
-            sqlite3_exec(conn_->db,
-                         "PRAGMA synchronous = OFF;",
-                         NULL,
-                         NULL,
-                         NULL);
+            execute_plain("PRAGMA auto_vacuum = OFF;");
+            execute_plain("PRAGMA synchronous = OFF;");
 
             if (journal_off == true)
             {
-                // Turn off the journal
-                sqlite3_exec(conn_->db,
-                             "PRAGMA journal_mode = OFF;",
-                             NULL,
-                             NULL,
-                             NULL);
+                execute_plain("PRAGMA journal_mode = OFF;");
             }
             else
             {
-                // Journal in memory
-                sqlite3_exec(conn_->db,
-                             "PRAGMA journal_mode = MEMORY;",
-                             NULL,
-                             NULL,
-                             NULL);
+                execute_plain("PRAGMA journal_mode = MEMORY;");
             }
-            // Disable Cache spilling
-            sqlite3_exec(conn_->db,
-                         "PRAGMA cache_spill = OFF;",
-                         NULL,
-                         NULL,
-                         NULL);
+            execute_plain("PRAGMA cache_spill = OFF;");
         }
+        // WAL mode or Journal Mode
         else
         {
-            // Enable Write-Ahead-Log instead of Journal
             if (wal_in_journal)
             {
-                sqlite3_exec(conn_->db,
-                             "PRAGMA journal_mode = WAL;",
-                             NULL,
-                             NULL,
-                             NULL);
+                execute_plain("PRAGMA journal_mode = WAL;");
             }
         }
     }
@@ -135,4 +77,39 @@ Database::~Database()
 {
     // Connection auto-terminates because SQLiteConnection has the appropriate
     // Destructor.
+}
+
+void Database::begin_transaction()
+{
+    conn_->execute_plain("BEGIN TRANSACTION;");
+}
+
+void Database::commit()
+{
+    conn_->execute_plain("COMMIT;");
+}
+
+void Database::rollback()
+{
+    conn_->execute_plain("ROLLBACK;");
+}
+
+void Database::execute_plain(std::string sql)
+{
+    conn_->execute_plain(sql);
+}
+
+void Database::execute_plain(const char *sql)
+{
+    conn_->execute_plain(sql);
+}
+
+void Database::step_and_reset()
+{
+    sqlite3_step(conn_->stmt);
+    sqlite3_reset(conn_->stmt);
+}
+void Database::finalize_statement()
+{
+    sqlite3_finalize(conn_->stmt);
 }

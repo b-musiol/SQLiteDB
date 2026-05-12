@@ -54,6 +54,14 @@ std::int64_t Row::get_integer(std::uint64_t ix)
             "{} where the type did not match!",
             ix));
     }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(std::format(
+            "Attempted to get a INTEGER from a SQLiteDB Row at index {} "
+            "where the index is out of range for a row of size {}!",
+            ix,
+            get_size()));
+    }
 }
 
 double Row::get_real(std::uint64_t ix)
@@ -69,6 +77,14 @@ double Row::get_real(std::uint64_t ix)
             "Attempted to get a REAL from a SQLiteDB Row at index {} "
             "where the type did not match!",
             ix));
+    }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(std::format(
+            "Attempted to get a REAL from a SQLiteDB Row at index {} "
+            "where the index is out of range for a row of size {}!",
+            ix,
+            get_size()));
     }
 }
 
@@ -86,6 +102,14 @@ std::string Row::get_text(std::uint64_t ix)
             "where the type did not match!",
             ix));
     }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(std::format(
+            "Attempted to get a TEXT from a SQLiteDB Row at index {} "
+            "where the index is out of range for a row of size {}!",
+            ix,
+            get_size()));
+    }
 }
 
 std::vector<std::uint8_t> Row::get_blob(std::uint64_t ix)
@@ -101,6 +125,14 @@ std::vector<std::uint8_t> Row::get_blob(std::uint64_t ix)
             "Attempted to get a BLOB from a SQLiteDB Row at index {} "
             "where the type did not match!",
             ix));
+    }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(std::format(
+            "Attempted to get a BLOB from a SQLiteDB Row at index {} "
+            "where the index is out of range for a row of size {}!",
+            ix,
+            get_size()));
     }
 }
 
@@ -146,4 +178,21 @@ void Row::pop()
 size_t Row::get_size()
 {
     return data_.size();
+}
+
+SQLiteDB::Row::ValueType Row::get_type(std::uint64_t ix)
+{
+    try
+    {
+        auto value_type = data_type_.at(ix);
+        return value_type;
+    }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(std::format(
+            "Attempted to get the type from a SQLiteDB Row at index {} "
+            "where the index is out of range for a row of size {}!",
+            ix,
+            get_size()));
+    }
 }
