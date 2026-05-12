@@ -364,3 +364,120 @@ TEST(Database, create_and_write_many)
         );
     }
 }
+
+TEST(Database, simple_select)
+{
+    {
+        SQLiteDB::Database db("simple_select.db");
+        db.execute_plain(
+            R"sql(
+            DROP TABLE IF EXISTS "testtable";
+            CREATE TABLE "testtable" (
+            	"intval"	INTEGER,
+            	"textval"	TEXT,
+            	"realval"	REAL,
+            	"blobval"	BLOB
+            );
+            )sql"
+        );
+        std::vector<SQLiteDB::Row> rows;
+        SQLiteDB::Row row;
+        row.push_integer(4711);
+        row.push_text("ein teststring");
+        row.push_real(8.15);
+        std::vector<std::uint8_t> blob_value{4, 6, 7,3, 2};
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_integer(32453);
+        row.push_text("mEhr, tests");
+        row.push_real(-355.5468);
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_null();
+        row.push_null();
+        row.push_null();
+        row.push_null();
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_integer(32453);
+        row.push_null();
+        row.push_real(-355.5468);
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        db.execute_statement_norows(
+            R"sql(
+            INSERT INTO "testtable"("intval","textval","realval","blobval")
+            VALUES (?,?,?,?);
+            )sql",
+            rows
+        );
+
+        auto simple_select = db.execute_statement_returns(
+            R"sql(
+            SELECT * FROM "testtable";
+            )sql"
+        );
+        int a = 0;
+    }
+}
+
+TEST(Database, params_select)
+{
+    {
+        SQLiteDB::Database db("params_select.db");
+        db.execute_plain(
+            R"sql(
+            DROP TABLE IF EXISTS "testtable";
+            CREATE TABLE "testtable" (
+            	"intval"	INTEGER,
+            	"textval"	TEXT,
+            	"realval"	REAL,
+            	"blobval"	BLOB
+            );
+            )sql"
+        );
+        std::vector<SQLiteDB::Row> rows;
+        SQLiteDB::Row row;
+        row.push_integer(4711);
+        row.push_text("ein teststring");
+        row.push_real(8.15);
+        std::vector<std::uint8_t> blob_value{4, 6, 7,3, 2};
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_integer(32453);
+        row.push_text("mEhr, tests");
+        row.push_real(-355.5468);
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_null();
+        row.push_null();
+        row.push_null();
+        row.push_null();
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_integer(32453);
+        row.push_null();
+        row.push_real(-355.5468);
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        db.execute_statement_norows(
+            R"sql(
+            INSERT INTO "testtable"("intval","textval","realval","blobval")
+            VALUES (?,?,?,?);
+            )sql",
+            rows
+        );
+        SQLiteDB::Row params;
+        params.push_integer(5000);
+        auto simple_select = db.execute_statement_returns(
+            R"sql(
+            SELECT * FROM "testtable" WHERE "intval" > ?;
+            )sql", params
+        );
+        int a = 0;
+    }
+}

@@ -36,7 +36,7 @@ struct Database::SQLiteConnection
 
     ~SQLiteConnection();
 
-    void check_maybe_throw(std::string msg);
+    void check_maybe_throw(std::string msg, int check_against = SQLITE_OK, bool negative = true);
 
     /**
      * Executes a plain statement from `sql`.
@@ -58,6 +58,12 @@ struct Database::SQLiteConnection
      * Binds a parameter from `row` at `ix` and returns its `ValueType`
      */
     Row::ValueType bind_parameter(Row &params, std::uint64_t ix);
+    /**
+     * Steps the active statement. Returns `true` if `SQLITE_ROW` was returned
+     * and `false` if `SQLITE_DONE` was returned. Throws on error. Loops on
+     * `SQLITE_BUSY`
+     */
+    bool step();
 };
 
 #endif // _SQLITECONNECTION_HPP_

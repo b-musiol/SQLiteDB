@@ -5,6 +5,7 @@ project(SQLiteDB)
 add_library(SQLiteDB
   src/SQLiteDB.cpp
   src/execute_statement_norows.cpp
+  src/execute_statement_returns.cpp
   src/SQLiteConnection.cpp
   src/Row.cpp
 )

@@ -144,6 +144,17 @@ class Row
     std::vector<ValueType> data_type_;
 };
 
+/**
+ * A header row and data rows
+ */
+struct Table
+{
+    std::string database;
+    std::string table;
+    std::vector<std::string> header;
+    std::vector<Row> data;
+};
+
 class Database
 {
 
@@ -200,6 +211,22 @@ class Database
      */
     void step_and_reset();
     /**
+     * Gets the headers for the currently active statement.
+     */
+    std::vector<std::string> get_headers_for_last_statement();
+    // /**
+    //  * Gets the table name for the currently active statement.
+    //  */
+    // std::string get_table_name_for_last_statement();
+    // /**
+    //  * Gets the database name for the currently active statement.
+    //  */
+    // std::string get_database_name_for_last_statement();
+    /**
+     * Gets all rows through stepping
+     */
+    std::vector<Row> step_and_get_rows();
+    /**
      * finalizes the currently active statement
      */
     void finalize_statement();
@@ -230,6 +257,7 @@ class Database
     void execute_statement_norows(std::string sql);
 
     // Convenience methods
+
     /**
      * Executes some `sql` code as a prepared statement once without any
      * parameters. No data is returned, so this is not useful for SELECT
@@ -253,6 +281,39 @@ class Database
      * `sql`.
      */
     void execute_statement_norows(const char *sql, Row &params);
+
+  public:
+    /**
+     * Executes some `sql` code as a prepared statement with `params`. Data is
+     * returned, so this is useful for SELECT statements, but might not be a
+     * good choice for INSERT, UPDATE or DELETE statements. The order of
+     * `params` in each `Row` must align with the order of placeholders `?`
+     * within `sql`. Returns a `Table`. 
+     */
+    Table execute_statement_returns(std::string sql, Row &params);
+    /**
+     * Executes some `sql` code as a prepared statement once without any
+     * parameters. Data is returned, so this is useful for SELECT statements,
+     * but might be not a good choice for INSERT, UPDATE or DELETE statements. 
+     */
+    Table execute_statement_returns(std::string sql);
+
+    // Convenience methods
+
+    /**
+     * Executes some `sql` code as a prepared statement with `params`. Data is
+     * returned, so this is useful for SELECT statements, but might not be a
+     * good choice for INSERT, UPDATE or DELETE statements. The order of
+     * `params` in each `Row` must align with the order of placeholders `?`
+     * within `sql`. Returns a `Table`. 
+     */
+    Table execute_statement_returns(const char *sql, Row &params);
+    /**
+     * Executes some `sql` code as a prepared statement once without any
+     * parameters. Data is returned, so this is useful for SELECT statements,
+     * but might be not a good choice for INSERT, UPDATE or DELETE statements. 
+     */
+    Table execute_statement_returns(const char *sql);
 
   private:
     struct SQLiteConnection;

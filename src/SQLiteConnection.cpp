@@ -22,12 +22,25 @@ Database::SQLiteConnection::~SQLiteConnection()
     }
 }
 
-void Database::SQLiteConnection::check_maybe_throw(std::string msg)
+void Database::SQLiteConnection::check_maybe_throw(std::string msg,
+                                                   int check_against,
+                                                   bool negative)
 {
-    if (rc != SQLITE_OK)
+    if (negative)
     {
-        sqlite3_close(db);
-        throw std::runtime_error(msg);
+        if (rc != check_against)
+        {
+            sqlite3_close(db);
+            throw std::runtime_error(msg);
+        }
+    }
+    else
+    {
+        if (rc == check_against)
+        {
+            sqlite3_close(db);
+            throw std::runtime_error(msg);
+        }
     }
 }
 
@@ -118,4 +131,27 @@ void Database::SQLiteConnection::execute_plain(const char *sql)
                                   db_path,
                                   errmsg ? errmsg : "unknown error",
                                   sql));
+}
+
+bool Database::SQLiteConnection::step()
+{
+    do
+    {
+        rc = sqlite3_step(stmt);
+    } while (rc == SQLITE_BUSY);
+
+    check_maybe_throw(std::format("Failed to step active statement in database "
+                                  "at {}\n\nSQLite error: {}",
+                                  db_path,
+                                  sqlite3_errmsg(db)),
+                      SQLITE_ERROR,
+                      false);
+    check_maybe_throw(
+        std::format("Misuse of stepping active statement in database "
+                    "at {}\n\nSQLite error: {}",
+                    db_path,
+                    sqlite3_errmsg(db)),
+        SQLITE_MISUSE,
+        false);
+    return rc == SQLITE_ROW;
 }
