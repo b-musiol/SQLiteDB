@@ -7,10 +7,11 @@
  */
 
 #include "../incl/SQLiteDB.hpp"
-#include <sqlite3.h>
 #include <format>
 #include <memory>
+#include <sqlite3.h>
 #include <stdexcept>
+
 
 using namespace SQLiteDB;
 
@@ -46,9 +47,7 @@ Database::Database(const std::string db_path,
                    bool wal_in_journal,
                    bool fast_mode,
                    bool journal_off)
-    : is_write_enabled_(write)
-    , db_path_(db_path)
-    , reserve_for_select_(16)
+    : is_write_enabled_(write), db_path_(db_path), reserve_for_select_(16)
 {
     // Make sure SQLite is not running in some form in this instance
     sqlite3_shutdown();
@@ -80,17 +79,26 @@ Database::Database(const std::string db_path,
         if (fast_mode)
         {
             // Turn off auto_vacuum
-            sqlite3_exec(
-                conn_->db, "PRAGMA auto_vacuum = OFF;", NULL, NULL, NULL);
+            sqlite3_exec(conn_->db,
+                         "PRAGMA auto_vacuum = OFF;",
+                         NULL,
+                         NULL,
+                         NULL);
             // Disable synchronous mode
-            sqlite3_exec(
-                conn_->db, "PRAGMA synchronous = OFF;", NULL, NULL, NULL);
+            sqlite3_exec(conn_->db,
+                         "PRAGMA synchronous = OFF;",
+                         NULL,
+                         NULL,
+                         NULL);
 
             if (journal_off == true)
             {
                 // Turn off the journal
-                sqlite3_exec(
-                    conn_->db, "PRAGMA journal_mode = OFF;", NULL, NULL, NULL);
+                sqlite3_exec(conn_->db,
+                             "PRAGMA journal_mode = OFF;",
+                             NULL,
+                             NULL,
+                             NULL);
             }
             else
             {
@@ -102,16 +110,22 @@ Database::Database(const std::string db_path,
                              NULL);
             }
             // Disable Cache spilling
-            sqlite3_exec(
-                conn_->db, "PRAGMA cache_spill = OFF;", NULL, NULL, NULL);
+            sqlite3_exec(conn_->db,
+                         "PRAGMA cache_spill = OFF;",
+                         NULL,
+                         NULL,
+                         NULL);
         }
         else
         {
             // Enable Write-Ahead-Log instead of Journal
             if (wal_in_journal)
             {
-                sqlite3_exec(
-                    conn_->db, "PRAGMA journal_mode = WAL;", NULL, NULL, NULL);
+                sqlite3_exec(conn_->db,
+                             "PRAGMA journal_mode = WAL;",
+                             NULL,
+                             NULL,
+                             NULL);
             }
         }
     }

@@ -6,7 +6,6 @@
  * See LICENSE
  */
 
-
 #ifndef _SQLITEDB_HPP_
 #define _SQLITEDB_HPP_
 
@@ -170,9 +169,6 @@ class Database
      * Automatically closes the connection properly.
      */
     ~Database();
-
-    public:
-
 
   private:
     struct SQLiteConnection;
