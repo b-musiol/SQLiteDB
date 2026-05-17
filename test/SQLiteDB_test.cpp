@@ -481,3 +481,35 @@ TEST(Database, params_select)
         int a = 0;
     }
 }
+
+TEST(Database, explicit_syntax_error_bind_error)
+{
+    {
+        SQLiteDB::Database db("explicit_syntax_error_bind_error.db");
+        db.execute_plain(
+            R"sql(
+            DROP TABLE IF EXISTS "testtable";
+            CREATE TABLE "testtable" (
+            	"intval"	INTEGER
+            );
+            )sql"
+        );
+        std::vector<SQLiteDB::Row> rows;
+        SQLiteDB::Row row;
+        row.push_null();
+        bool has_thrown = false;
+        try {
+        db.execute_statement_norows(
+            R"sql(
+            INSERT INTO "testtable"("intval")
+            VALUES (?,?,?,?);
+            )sql",
+            rows
+        );
+        } catch (std::runtime_error &e) {
+            std::cerr << e.what() << "\nCorrectly triggered.";
+            has_thrown = true;
+        }
+        EXPECT_TRUE(has_thrown);
+    }
+}
