@@ -106,7 +106,7 @@ void Database::execute_plain(const char *sql)
 
 void Database::step_and_reset()
 {
-    sqlite3_step(conn_->stmt);
+    conn_->step();
     sqlite3_reset(conn_->stmt);
 }
 void Database::finalize_statement()

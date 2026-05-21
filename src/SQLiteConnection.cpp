@@ -12,7 +12,10 @@ Database::SQLiteConnection::SQLiteConnection(const std::string db_path,
       reserve_for_select(reserve_for_select)
 {
     rc = sqlite3_open_v2(db_path.c_str(), &db, flags, nullptr);
-    check_maybe_throw(std::format("Failed to open database at {}", db_path));
+    check_maybe_throw(
+        std::format("Failed to open database at {}\n\nSQLite Error: {}",
+                    sqlite3_errmsg(db),
+                    db_path));
 }
 Database::SQLiteConnection::~SQLiteConnection()
 {
@@ -47,10 +50,12 @@ void Database::SQLiteConnection::check_maybe_throw(std::string msg,
 void Database::SQLiteConnection::prepare_statement(const char *sql)
 {
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
-    check_maybe_throw(std::format("Failed to prepare statement in database "
-                                  "at {}\n\nBad Statement:\n\n{}",
-                                  db_path,
-                                  sql));
+    check_maybe_throw(
+        std::format("Failed to prepare statement in database "
+                    "at {}\n\nSQLite Error: {}\n\nBad Statement:\n\n{}",
+                    db_path,
+                    sqlite3_errmsg(db),
+                    sql));
 }
 
 void Database::SQLiteConnection::prepare_statement(std::string sql)
@@ -69,16 +74,18 @@ Row::ValueType Database::SQLiteConnection::bind_parameter(Row &row,
         rc = sqlite3_bind_int64(stmt, sql_ix, row.get_integer(ix));
         check_maybe_throw(
             std::format("Failed to bind INTEGER value to statement in database "
-                        "at {}\n\nBad value:\n\n{}",
+                        "at {}\n\nSQLite Error: {}\n\nBad value:\n\n{}",
                         db_path,
+                        sqlite3_errmsg(db),
                         row.get_integer(ix)));
         break;
     case Row::REAL:
         rc = sqlite3_bind_double(stmt, sql_ix, row.get_real(ix));
         check_maybe_throw(
             std::format("Failed to bind REAL value to statement in database "
-                        "at {}\n\nBad value:\n\n{}",
+                        "at {}\n\nSQLite Error: {}\n\nBad value:\n\n{}",
                         db_path,
+                        sqlite3_errmsg(db),
                         row.get_real(ix)));
         break;
     case Row::TEXT:
@@ -89,8 +96,9 @@ Row::ValueType Database::SQLiteConnection::bind_parameter(Row &row,
                                SQLITE_TRANSIENT);
         check_maybe_throw(
             std::format("Failed to bind TEXT value to statement in database "
-                        "at {}\n\nBad value:\n\n{}",
+                        "at {}\n\nSQLite Error: {}\n\nBad value:\n\n{}",
                         db_path,
+                        sqlite3_errmsg(db),
                         row.get_text(ix)));
         break;
     case Row::BLOB:
@@ -102,16 +110,18 @@ Row::ValueType Database::SQLiteConnection::bind_parameter(Row &row,
                                        SQLITE_TRANSIENT);
         check_maybe_throw(
             std::format("Failed to bind BLOB value to statement in database "
-                        "at {}\n\nBad value size:\n\n{}",
+                        "at {}\n\nSQLite Error: {}\n\nBad value size:\n\n{}",
                         db_path,
+                        sqlite3_errmsg(db),
                         blob_buf.size()));
         break;
     case Row::ISNULL:
         rc = sqlite3_bind_null(stmt, sql_ix);
         check_maybe_throw(
             std::format("Failed to bind NULL value to statement in database "
-                        "at {}",
-                        db_path));
+                        "at {}\n\nSQLite Error: {}",
+                        db_path,
+                        sqlite3_errmsg(db)));
         break;
     }
 

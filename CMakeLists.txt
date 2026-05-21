@@ -45,12 +45,12 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(RunTests test/SQLiteDB_test.cpp)
-target_link_libraries(RunTests SQLiteDB GTest::gtest_main)
-target_compile_features(RunTests PUBLIC cxx_std_20)
+add_executable(RunTests_SQLiteDB test/SQLiteDB_test.cpp)
+target_link_libraries(RunTests_SQLiteDB SQLiteDB GTest::gtest_main)
+target_compile_features(RunTests_SQLiteDB PUBLIC cxx_std_20)
 
 
 include(GoogleTest)
-gtest_discover_tests(RunTests)
+gtest_discover_tests(RunTests_SQLiteDB)
 
 enable_testing()
