@@ -117,7 +117,6 @@ void Database::finalize_statement()
 std::vector<Row> Database::step_and_get_rows()
 {
     std::vector<Row> rows;
-    Row row;
     result_t buf;
     size_t blob_bytes;
     const std::uint8_t *blob_buf;
@@ -125,6 +124,7 @@ std::vector<Row> Database::step_and_get_rows()
 
     while (conn_->step())
     {
+        Row row;
 
         int column_count = sqlite3_column_count(conn_->stmt);
 
@@ -178,8 +178,9 @@ std::vector<std::string> Database::get_headers_for_last_statement()
 {
     std::vector<std::string> headers;
     size_t col_count = sqlite3_column_count(conn_->stmt);
-    for (size_t i = 0; i < col_count; i++) {
-        const char * col_name = sqlite3_column_name(conn_->stmt, i);
+    for (size_t i = 0; i < col_count; i++)
+    {
+        const char *col_name = sqlite3_column_name(conn_->stmt, i);
         headers.push_back(std::string(col_name));
     }
     return headers;
@@ -194,6 +195,6 @@ std::vector<std::string> Database::get_headers_for_last_statement()
 // std::string Database::get_database_name_for_last_statement()
 // {
 
-//     const char * database_name = sqlite3_column_database_name(conn_->stmt, 1);
-//     return std::string(database_name);
+//     const char * database_name = sqlite3_column_database_name(conn_->stmt,
+//     1); return std::string(database_name);
 // }

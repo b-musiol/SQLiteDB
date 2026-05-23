@@ -17,10 +17,10 @@ using namespace SQLiteDB;
 
 struct Database::SQLiteConnection
 {
-    private:
+  private:
     std::vector<std::uint8_t> blob_buf;
 
-    public:
+  public:
     sqlite3 *db = nullptr;
     sqlite3_stmt *stmt;
     int rc = SQLITE_OK;
@@ -29,14 +29,15 @@ struct Database::SQLiteConnection
     std::uint64_t reserve_for_select;
     char *errmsg = nullptr;
 
-
     SQLiteConnection(const std::string db_path,
                      int flags,
                      std::uint64_t reserve_for_select = 16);
 
     ~SQLiteConnection();
 
-    void check_maybe_throw(std::string msg, int check_against = SQLITE_OK, bool negative = true);
+    void check_maybe_throw(std::string msg,
+                           int check_against = SQLITE_OK,
+                           bool negative     = true);
 
     /**
      * Executes a plain statement from `sql`.

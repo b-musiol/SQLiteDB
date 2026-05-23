@@ -13,7 +13,6 @@
 
 using namespace SQLiteDB;
 
-
 void Database::execute_statement_norows(const char *sql,
                                         std::vector<Row> &params_vec)
 {

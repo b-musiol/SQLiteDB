@@ -186,9 +186,9 @@ class Database
     ~Database();
 
   public:
-  /**
-   * Executes `BEGIN_TRANSACTION;`. This does not call finalize.
-   */
+    /**
+     * Executes `BEGIN_TRANSACTION;`. This does not call finalize.
+     */
     void begin_transaction();
     /**
      * Executes `COMMIT;`. This does not call finalize.
@@ -205,7 +205,7 @@ class Database
     /**
      * Executes arbitrary `sql`. This does not call finalize.
      */
-    void execute_plain(const char* sql);
+    void execute_plain(const char *sql);
     /**
      * Steps and resets the currently active statement. No returning values
      */
@@ -288,13 +288,13 @@ class Database
      * returned, so this is useful for SELECT statements, but might not be a
      * good choice for INSERT, UPDATE or DELETE statements. The order of
      * `params` in each `Row` must align with the order of placeholders `?`
-     * within `sql`. Returns a `Table`. 
+     * within `sql`. Returns a `Table`.
      */
     Table execute_statement_returns(std::string sql, Row &params);
     /**
      * Executes some `sql` code as a prepared statement once without any
      * parameters. Data is returned, so this is useful for SELECT statements,
-     * but might be not a good choice for INSERT, UPDATE or DELETE statements. 
+     * but might be not a good choice for INSERT, UPDATE or DELETE statements.
      */
     Table execute_statement_returns(std::string sql);
 
@@ -305,13 +305,13 @@ class Database
      * returned, so this is useful for SELECT statements, but might not be a
      * good choice for INSERT, UPDATE or DELETE statements. The order of
      * `params` in each `Row` must align with the order of placeholders `?`
-     * within `sql`. Returns a `Table`. 
+     * within `sql`. Returns a `Table`.
      */
     Table execute_statement_returns(const char *sql, Row &params);
     /**
      * Executes some `sql` code as a prepared statement once without any
      * parameters. Data is returned, so this is useful for SELECT statements,
-     * but might be not a good choice for INSERT, UPDATE or DELETE statements. 
+     * but might be not a good choice for INSERT, UPDATE or DELETE statements.
      */
     Table execute_statement_returns(const char *sql);
 
