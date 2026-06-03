@@ -29,7 +29,7 @@ add_library(sqlite3 STATIC
     ${sqlite_SOURCE_DIR}/sqlite3.c
 )
 
-target_include_directories(sqlite3 PUBLIC
+target_include_directories(sqlite3 PRIVATE
     ${sqlite_SOURCE_DIR}
 )
 
