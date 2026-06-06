@@ -7,7 +7,7 @@
  * See LICENSE
  */
 
-#include "../incl/SQLiteConnection.hpp"
+#include "../incl_private/SQLiteConnection.hpp"
 #include "../incl/SQLiteDB.hpp"
 #include <sqlite3.h>
 

@@ -7,7 +7,7 @@
  */
 
 #include "../incl/SQLiteDB.hpp"
-#include "../incl/SQLiteConnection.hpp"
+#include "../incl_private/SQLiteConnection.hpp"
 #include <memory>
 #include <sqlite3.h>
 

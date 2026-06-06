@@ -1,4 +1,4 @@
-#include "../incl/SQLiteConnection.hpp"
+#include "../incl_private/SQLiteConnection.hpp"
 #include <format>
 #include <sqlite3.h>
 #include <stdexcept>
