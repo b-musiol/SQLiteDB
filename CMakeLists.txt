@@ -17,23 +17,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 target_compile_features(SQLiteDB PUBLIC cxx_std_20)
 
+find_package(SQLite3 REQUIRED)
 
+target_link_libraries(SQLiteDB PRIVATE SQLite3::SQLite3)
+target_include_directories(SQLiteDB PRIVATE
+     ${SQLite3_INCLUDE_DIRS}
+ )
 include(FetchContent)
-FetchContent_Declare(
-  sqlite
-  URL https://sqlite.org/2026/sqlite-autoconf-3530100.tar.gz
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
-FetchContent_MakeAvailable(sqlite)
-
-
-add_library(sqlite3 STATIC
-    ${sqlite_SOURCE_DIR}/sqlite3.c
-)
-
-target_include_directories(sqlite3 PRIVATE
-    ${sqlite_SOURCE_DIR}
-)
+# FetchContent_Declare(
+#   sqlite
+#   URL https://sqlite.org/2026/sqlite-autoconf-3530100.tar.gz
+#   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+# )
+# FetchContent_MakeAvailable(sqlite)
+# 
+# 
+# add_library(sqlite3 STATIC
+#     ${sqlite_SOURCE_DIR}/sqlite3.c
+# )
+# 
+# target_include_directories(sqlite3 PRIVATE
+#     ${sqlite_SOURCE_DIR}
+# )
 
 target_link_libraries(SQLiteDB PRIVATE sqlite3)
 
