@@ -21,7 +21,7 @@ target_compile_features(SQLiteDB PUBLIC cxx_std_20)
 include(FetchContent)
 FetchContent_Declare(
   sqlite
-  URL https://sqlite.org/2026/sqlite-autoconf-3530100.tar.gz
+  URL https://sqlite.org/2026/sqlite-amalgamation-3530200.zip
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 FetchContent_MakeAvailable(sqlite)
@@ -31,7 +31,7 @@ add_library(sqlite3 STATIC
     ${sqlite_SOURCE_DIR}/sqlite3.c
 )
 
-target_include_directories(sqlite3 PRIVATE
+target_include_directories(sqlite3 PUBLIC
     ${sqlite_SOURCE_DIR}
 )
 
