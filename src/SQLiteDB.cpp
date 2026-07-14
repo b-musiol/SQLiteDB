@@ -23,6 +23,13 @@ Database::Database(const std::string db_path,
     int flags = write ? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
                       : SQLITE_OPEN_READONLY;
 
+    // convert out of a WAL database for read only
+    if (!write)
+    {
+        Database(db_path, true, false, false, false);
+        // immediately close again
+    }
+
     // Actually open the Database
     conn_ = std::make_unique<SQLiteConnection>(db_path, flags, wal_in_journal);
 
@@ -30,27 +37,34 @@ Database::Database(const std::string db_path,
     if (conn_->rc == SQLITE_OK)
     {
         // Fast mode for in-memory journaling or turning it off etc.
-        if (fast_mode)
+        if (write)
         {
-            execute_plain("PRAGMA auto_vacuum = OFF;");
-            execute_plain("PRAGMA synchronous = OFF;");
-
-            if (journal_off == true)
+            if (fast_mode)
             {
-                execute_plain("PRAGMA journal_mode = OFF;");
+                execute_plain("PRAGMA auto_vacuum = OFF;");
+                execute_plain("PRAGMA synchronous = OFF;");
+
+                if (journal_off == true)
+                {
+                    execute_plain("PRAGMA journal_mode = OFF;");
+                }
+                else
+                {
+                    execute_plain("PRAGMA journal_mode = MEMORY;");
+                }
+                execute_plain("PRAGMA cache_spill = OFF;");
             }
+            // WAL mode or Journal Mode
             else
             {
-                execute_plain("PRAGMA journal_mode = MEMORY;");
-            }
-            execute_plain("PRAGMA cache_spill = OFF;");
-        }
-        // WAL mode or Journal Mode
-        else
-        {
-            if (wal_in_journal && write)
-            {
-                execute_plain("PRAGMA journal_mode = WAL;");
+                if (wal_in_journal)
+                {
+                    execute_plain("PRAGMA journal_mode = WAL;");
+                }
+                else
+                {
+                    execute_plain("PRAGMA journal_mode = DELETE;");
+                }
             }
         }
     }

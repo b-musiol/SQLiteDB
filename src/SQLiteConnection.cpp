@@ -1,5 +1,6 @@
 #include "../incl_private/SQLiteConnection.hpp"
 #include <format>
+#include <iostream>
 #include <sqlite3.h>
 #include <stdexcept>
 
@@ -23,16 +24,12 @@ Database::SQLiteConnection::~SQLiteConnection()
 
     if (db)
     {
-        if (is_wal_enabled)
-        {
-            sqlite3_wal_checkpoint_v2(db,
-                                      nullptr,
-                                      SQLITE_CHECKPOINT_TRUNCATE,
-                                      nullptr,
-                                      nullptr);
-        }
-        sqlite3_close(db);
+        rc = sqlite3_close_v2(db);
         db = nullptr;
+        if (rc != SQLITE_OK)
+        {
+            std::cerr << "sqlite3_close failed: " << sqlite3_errmsg(db) << "\n";
+        }
     }
 }
 
@@ -44,7 +41,7 @@ void Database::SQLiteConnection::check_maybe_throw(std::string msg,
     {
         if (rc != check_against)
         {
-            sqlite3_close(db);
+            sqlite3_close_v2(db);
             db = nullptr;
             throw std::runtime_error(msg);
         }
@@ -53,7 +50,7 @@ void Database::SQLiteConnection::check_maybe_throw(std::string msg,
     {
         if (rc == check_against)
         {
-            sqlite3_close(db);
+            sqlite3_close_v2(db);
             db = nullptr;
             throw std::runtime_error(msg);
         }
