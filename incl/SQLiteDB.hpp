@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <variant>
 #include <vector>
 
@@ -93,11 +94,11 @@ class Row
     /**
      * Push a `TEXT (`string`) value at the end of the row.
      */
-    void push_text(std::string text_value);
+    void push_text(std::string_view text_value);
     /**
      * Push a BLOB (`vector<uint8_t>`) value at the end of the row.
      */
-    void push_blob(std::vector<std::uint8_t> &blob_value);
+    void push_blob(const std::vector<std::uint8_t> &blob_value);
     /**
      * Push a NULL value at the end of the row.
      */
@@ -106,6 +107,45 @@ class Row
      * Remove the last element
      */
     void pop();
+
+  public:
+    /**
+     * Set a `INTEGER (`int64_t`) value at column number `ix`. If it does not
+     * exist, this fails badly. Check with is_integer(`ix`) first. If it is the
+     * wrong type, this will succeed, but you will have just screwed yourself,
+     * because the getter will assume there is the other type in here and
+     * provoke a bad_variant_access exception. If you are not super sure, always
+     * check the type with get_type(`ix`)!
+     */
+    void set_integer(std::uint64_t ix, std::int64_t integer_value);
+    /**
+     * Set a `REAL (`double`) value at column number `ix`. If it does not exist,
+     * this fails badly. Check with is_real(`ix`) first. If it is the wrong
+     * type, this will succeed, but you will have just screwed yourself, because
+     * the getter will assume there is the other type in here and provoke a
+     * bad_variant_access exception. If you are not super sure, always check the
+     * type with get_type(`ix`)!
+     */
+    void set_real(std::uint64_t ix, double real_value);
+    /**
+     * Set a `TEXT (`string`) value at column number `ix`. If it does not exist,
+     * this fails badly. Check with is_text(`ix`) first. If it is the wrong
+     * type, this will succeed, but you will have just screwed yourself, because
+     * the getter will assume there is the other type in here and provoke a
+     * bad_variant_access exception. If you are not super sure, always check the
+     * type with get_type(`ix`)!
+     */
+    void set_text(std::uint64_t ix, std::string_view text_value);
+    /**
+     * Set a BLOB (`vector<uint8_t>`) value at column number `ix`. If it does
+     * not exist, this fails badly. Check with is_blob(`ix`) first. If it is the
+     * wrong type, this will succeed, but you will have just screwed yourself,
+     * because the getter will assume there is the other type in here and
+     * provoke a bad_variant_access exception. If you are not super sure, always
+     * check the type with get_type(`ix`)!
+     */
+    void set_blob(std::uint64_t ix,
+                  const std::vector<std::uint8_t> &blob_value);
 
   public:
     /**

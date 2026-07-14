@@ -150,13 +150,13 @@ void Row::push_real(double real_value)
     data_type_.push_back(ValueType::REAL);
 }
 
-void Row::push_text(std::string text_value)
+void Row::push_text(std::string_view text_value)
 {
-    data_.push_back(text_value);
+    data_.push_back(std::string(text_value));
     data_type_.push_back(ValueType::TEXT);
 }
 
-void Row::push_blob(std::vector<std::uint8_t> &blob_value)
+void Row::push_blob(const std::vector<std::uint8_t> &blob_value)
 {
     data_.push_back(blob_value);
     data_type_.push_back(ValueType::BLOB);
@@ -194,5 +194,70 @@ SQLiteDB::Row::ValueType Row::get_type(std::uint64_t ix)
             "where the index is out of range for a row of size {}!",
             ix,
             get_size()));
+    }
+}
+
+void Row::set_integer(std::uint64_t ix, std::int64_t integer_value)
+{
+    try
+    {
+        data_.at(ix) = integer_value;
+    }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(std::format(
+            "Attempted to set a INTEGER to a SQLiteDB Row at index {} "
+            "where the index is out of range for a row of size {}!",
+            ix,
+            get_size()));
+    }
+}
+
+void Row::set_real(std::uint64_t ix, double real_value)
+{
+    try
+    {
+        data_.at(ix) = real_value;
+    }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(
+            std::format("Attempted to set a REAL to a SQLiteDB Row at index {} "
+                        "where the index is out of range for a row of size {}!",
+                        ix,
+                        get_size()));
+    }
+}
+
+void Row::set_text(std::uint64_t ix, std::string_view text_value)
+{
+    try
+    {
+        data_.at(ix) = std::string(text_value);
+    }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(
+            std::format("Attempted to set a TEXT to a SQLiteDB Row at index {} "
+                        "where the index is out of range for a row of size {}!",
+                        ix,
+                        get_size()));
+    }
+}
+
+void Row::set_blob(std::uint64_t ix,
+                   const std::vector<std::uint8_t> &blob_value)
+{
+    try
+    {
+        data_.at(ix) = blob_value;
+    }
+    catch (std::out_of_range)
+    {
+        throw std::runtime_error(
+            std::format("Attempted to set a BLOB to a SQLiteDB Row at index {} "
+                        "where the index is out of range for a row of size {}!",
+                        ix,
+                        get_size()));
     }
 }
