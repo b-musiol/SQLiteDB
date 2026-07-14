@@ -19,9 +19,19 @@ Database::SQLiteConnection::SQLiteConnection(const std::string db_path,
 }
 Database::SQLiteConnection::~SQLiteConnection()
 {
+
     if (db)
     {
+        if (is_write_enabled)
+        {
+            sqlite3_wal_checkpoint_v2(db,
+                                      nullptr,
+                                      SQLITE_CHECKPOINT_TRUNCATE,
+                                      nullptr,
+                                      nullptr);
+        }
         sqlite3_close(db);
+        db = nullptr;
     }
 }
 
@@ -34,6 +44,7 @@ void Database::SQLiteConnection::check_maybe_throw(std::string msg,
         if (rc != check_against)
         {
             sqlite3_close(db);
+            db = nullptr;
             throw std::runtime_error(msg);
         }
     }
@@ -42,6 +53,7 @@ void Database::SQLiteConnection::check_maybe_throw(std::string msg,
         if (rc == check_against)
         {
             sqlite3_close(db);
+            db = nullptr;
             throw std::runtime_error(msg);
         }
     }
