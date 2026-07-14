@@ -48,7 +48,7 @@ Database::Database(const std::string db_path,
         // WAL mode or Journal Mode
         else
         {
-            if (wal_in_journal && !write)
+            if (wal_in_journal && write)
             {
                 execute_plain("PRAGMA journal_mode = WAL;");
             }
