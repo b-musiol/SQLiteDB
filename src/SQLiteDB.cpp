@@ -15,27 +15,10 @@ using namespace SQLiteDB;
 
 Database::Database(const std::string db_path,
                    bool write,
-                   bool multithread_enable,
                    bool wal_in_journal,
                    bool fast_mode,
                    bool journal_off)
 {
-    // Make sure SQLite is not running in some form in this instance
-    sqlite3_shutdown();
-
-    // Handle multithreading, if it is required
-    if (multithread_enable)
-    {
-        sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
-    }
-    else
-    {
-        sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
-    }
-
-    // Finally Initialize SQLite
-    sqlite3_initialize();
-
     // Deal with Read-Only Mode if required
     int flags = write ? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
                       : SQLITE_OPEN_READONLY;
@@ -65,7 +48,7 @@ Database::Database(const std::string db_path,
         // WAL mode or Journal Mode
         else
         {
-            if (wal_in_journal)
+            if (wal_in_journal && !write)
             {
                 execute_plain("PRAGMA journal_mode = WAL;");
             }

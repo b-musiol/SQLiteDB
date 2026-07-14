@@ -215,11 +215,10 @@ class Database
      *
      */
     Database(const std::string db_path,
-             bool write              = true,
-             bool multithread_enable = false,
-             bool wal_in_journal     = true,
-             bool fast_mode          = false,
-             bool journal_off        = false);
+             bool write          = true,
+             bool wal_in_journal = true,
+             bool fast_mode      = false,
+             bool journal_off    = false);
     /**
      * Automatically closes the connection properly.
      */

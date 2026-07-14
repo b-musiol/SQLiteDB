@@ -14,8 +14,8 @@ Database::SQLiteConnection::SQLiteConnection(const std::string db_path,
     rc = sqlite3_open_v2(db_path.c_str(), &db, flags, nullptr);
     check_maybe_throw(
         std::format("Failed to open database at {}\n\nSQLite Error: {}",
-                    sqlite3_errmsg(db),
-                    db_path));
+                    db_path,
+                    sqlite3_errmsg(db)));
 }
 Database::SQLiteConnection::~SQLiteConnection()
 {
