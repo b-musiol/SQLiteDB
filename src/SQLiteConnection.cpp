@@ -7,9 +7,10 @@ using namespace SQLiteDB;
 
 Database::SQLiteConnection::SQLiteConnection(const std::string db_path,
                                              int flags,
+                                             bool is_wal_enabled,
                                              std::uint64_t reserve_for_select)
     : db_path(db_path), is_write_enabled((flags & SQLITE_OPEN_READWRITE) != 0),
-      reserve_for_select(reserve_for_select)
+      reserve_for_select(reserve_for_select), is_wal_enabled(is_wal_enabled)
 {
     rc = sqlite3_open_v2(db_path.c_str(), &db, flags, nullptr);
     check_maybe_throw(
@@ -22,7 +23,7 @@ Database::SQLiteConnection::~SQLiteConnection()
 
     if (db)
     {
-        if (is_write_enabled)
+        if (is_wal_enabled)
         {
             sqlite3_wal_checkpoint_v2(db,
                                       nullptr,

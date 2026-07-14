@@ -24,7 +24,7 @@ Database::Database(const std::string db_path,
                       : SQLITE_OPEN_READONLY;
 
     // Actually open the Database
-    conn_ = std::make_unique<SQLiteConnection>(db_path, flags);
+    conn_ = std::make_unique<SQLiteConnection>(db_path, flags, wal_in_journal);
 
     // Set up the connection
     if (conn_->rc == SQLITE_OK)

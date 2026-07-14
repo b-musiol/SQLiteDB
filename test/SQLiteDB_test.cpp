@@ -6,6 +6,7 @@
  * See LICENSE
  */
 
+#include <filesystem>
 #include <gtest/gtest.h>
 #include <stdexcept>
 #include <vector>
@@ -500,4 +501,72 @@ TEST(Database, explicit_syntax_error_bind_error)
         }
         EXPECT_TRUE(has_thrown);
     }
+}
+
+TEST(WAL, wal_doubleopen_readonly)
+{
+    {
+        SQLiteDB::Database db("wal_test.db", true, true);
+        db.execute_plain(
+            R"sql(
+            DROP TABLE IF EXISTS "testtable";
+            CREATE TABLE "testtable" (
+            	"intval"	INTEGER,
+            	"textval"	TEXT,
+            	"realval"	REAL,
+            	"blobval"	BLOB
+            );
+            )sql");
+        std::vector<SQLiteDB::Row> rows;
+        SQLiteDB::Row row;
+        row.push_integer(4711);
+        row.push_text("ein teststring");
+        row.push_real(8.15);
+        std::vector<std::uint8_t> blob_value{4, 6, 7, 3, 2};
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_integer(32453);
+        row.push_text("mEhr, tests");
+        row.push_real(-355.5468);
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_null();
+        row.push_null();
+        row.push_null();
+        row.push_null();
+        rows.push_back(row);
+        row = SQLiteDB::Row();
+        row.push_integer(32453);
+        row.push_null();
+        row.push_real(-355.5468);
+        row.push_blob(blob_value);
+        rows.push_back(row);
+        db.execute_statement_norows(
+            R"sql(
+            INSERT INTO "testtable"("intval","textval","realval","blobval")
+            VALUES (?,?,?,?);
+            )sql",
+            rows);
+        SQLiteDB::Row params;
+        params.push_integer(5000);
+        auto simple_select = db.execute_statement_returns(
+            R"sql(
+            SELECT * FROM "testtable" WHERE "intval" > ?;
+            )sql",
+            params);
+        // table exists now
+        EXPECT_TRUE(std::filesystem::exists("wal_test.db-shm"));
+        EXPECT_TRUE(std::filesystem::exists("wal_test.db-wal"));
+    }
+    EXPECT_FALSE(std::filesystem::exists("wal_test.db-shm"));
+    EXPECT_FALSE(std::filesystem::exists("wal_test.db-wal"));
+    {
+        SQLiteDB::Database db("wal_test.db", false, true);
+        EXPECT_FALSE(std::filesystem::exists("wal_test.db-shm"));
+        EXPECT_FALSE(std::filesystem::exists("wal_test.db-wal"));
+    }
+    EXPECT_FALSE(std::filesystem::exists("wal_test.db-shm"));
+    EXPECT_FALSE(std::filesystem::exists("wal_test.db-wal"));
 }

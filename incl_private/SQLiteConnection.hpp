@@ -24,13 +24,14 @@ struct Database::SQLiteConnection
     sqlite3 *db = nullptr;
     sqlite3_stmt *stmt;
     int rc = SQLITE_OK;
-    bool is_write_enabled;
+    bool is_write_enabled, is_wal_enabled;
     std::string db_path;
     std::uint64_t reserve_for_select;
     char *errmsg = nullptr;
 
     SQLiteConnection(const std::string db_path,
                      int flags,
+                     bool is_wal_enabled,
                      std::uint64_t reserve_for_select = 16);
 
     ~SQLiteConnection();
