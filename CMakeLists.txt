@@ -15,6 +15,8 @@ add_library(SQLiteDB
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(FETCHCONTENT_QUIET OFF)
+
 target_compile_features(SQLiteDB PUBLIC cxx_std_20)
 
 
