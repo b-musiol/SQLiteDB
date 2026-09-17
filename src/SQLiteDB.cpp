@@ -18,6 +18,7 @@ Database::Database(const std::string db_path,
                    bool wal_in_journal,
                    bool fast_mode,
                    bool journal_off)
+    : m_db_path(db_path)
 {
     // Deal with Read-Only Mode if required
     int flags = write ? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE

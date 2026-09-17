@@ -224,6 +224,11 @@ class Database
      */
     ~Database();
 
+    /**
+     * Path to the opened database
+     */
+    std::string m_db_path;
+
   public:
     /**
      * Executes `BEGIN_TRANSACTION;`. This does not call finalize.
